@@ -9,6 +9,9 @@ def findVenues(booktitle):
     highest_sim = 0
     highest_sim_key = ''
     for key, val in venues_list.items():
+        # Sometimes Google Scholar gives the short venue name
+        if booktitle == key:
+            return key
         # compare the booktitle with full venue name
         sim = 1 - Levenshtein.distance(booktitle, val[0]) / max(len(booktitle), len(val[0]))
         if sim > highest_sim:
@@ -24,15 +27,15 @@ def findVenues(booktitle):
 def main():
     if request.method == 'POST':
         text = request.form['bibliography']
-        short = request.form.get('s_venue')
+        short = request.form.get('s_venue') # use short venue name or not
         bib_data = parse_string(text, 'bibtex')
 
-        bib_data_new = BibliographyData(entries={})
-        bib_data_bad = BibliographyData(entries={})
+        bib_data_new = BibliographyData(entries={}) # new bib data with updated venue names
+        bib_data_bad = BibliographyData(entries={}) # entries that can not find the venue
 
         for key, entry in bib_data.entries.items():
-            if 'title' not in entry.fields \
-                or 'year' not in entry.fields:
+            # we assume that the entry has title and year
+            if 'title' not in entry.fields or 'year' not in entry.fields:
                 continue
             
             if 'booktitle' in entry.fields:
@@ -41,6 +44,8 @@ def main():
                 booktitle = entry.fields['journal']
             elif 'archivePrefix' in entry.fields:
                 booktitle = entry.fields['archivePrefix']
+            else:
+                booktitle = ''
 
             venue_key = findVenues(booktitle)
             if venue_key is not None:
@@ -53,7 +58,12 @@ def main():
                 new_key = key
                 bib_data_bad.add_entry(new_key, new_entry)
 
-        return render_template('index.html', bibliography=bib_data_new.to_string('bibtex') + '\n\n\n\n###### Can not find the venue for the following entries #####\n' + bib_data_bad.to_string('bibtex'))
+        if len(bib_data_bad.entries) == 0:
+            output = bib_data_new.to_string('bibtex')
+        else:
+            output = bib_data_new.to_string('bibtex') + '\n\n\n\n###### Can not find the venue for the following entries #####\n' + bib_data_bad.to_string('bibtex')
+
+        return render_template('index.html', bibliography=output)
     else:
         return render_template('index.html')
 
