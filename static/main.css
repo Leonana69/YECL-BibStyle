@@ -27,6 +27,10 @@ body {
 	float: right;
 }
 
+#s_venue {
+	float: right;
+}
+
 #footer {
 	text-align: center;
 	color: #EEE;
