@@ -1,0 +1,42 @@
+body {
+	font-size: 10pt;
+	font-family: Arial, Helvetica;
+	font-weight: normal;
+	background-color: #303030;
+	color: #808080;
+}
+
+/*legend {font-size: 10pt; font-family: Arial, Helvetica; font-weight: bold; color: #808080; }*/
+
+#main {
+	margin-left: auto;
+	margin-right: auto;
+	width: 70%;
+}
+
+#data {
+	width: 100%;
+	height: 600px;
+	color: #CCCCCC;
+	font-style: italic;
+	background-color: #282828; 
+}
+
+#submitButton {
+	/*text-align: right;*/
+	float: right;
+}
+
+#footer {
+	text-align: center;
+	color: #EEE;
+	font-size: x-small;
+}
+
+#footer a:link {
+	color: #DDD;
+}
+
+#footer a:visited {
+	color: #BBB;
+}
