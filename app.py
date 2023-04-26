@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 from pybtex.database import parse_string, Entry, BibliographyData
 import Levenshtein
 from venue import venues_full, venues_short
+import os
 app = Flask(__name__)
 
 def findVenues(booktitle):
@@ -57,4 +58,4 @@ def main():
         return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(port=8000)
+    app.run(host="0.0.0.0", port=os.getenv('PORT', 40000))
