@@ -1,16 +1,16 @@
 from flask import Flask, render_template, request
 from pybtex.database import parse_string, Entry, BibliographyData
 import Levenshtein
-from venue import venues_full, venues_short
+from venue import venues_list
 import os
 app = Flask(__name__)
 
 def findVenues(booktitle):
     highest_sim = 0
     highest_sim_key = ''
-    for key, val in venues_full.items():
+    for key, val in venues_list.items():
         # compare the booktitle with full venue name
-        sim = 1 - Levenshtein.distance(booktitle, val) / max(len(booktitle), len(val))
+        sim = 1 - Levenshtein.distance(booktitle, val[0]) / max(len(booktitle), len(val[0]))
         if sim > highest_sim:
             highest_sim = sim
             highest_sim_key = key
@@ -45,7 +45,7 @@ def main():
             venue_key = findVenues(booktitle)
             if venue_key is not None:
                 new_entry = Entry(entry.type, fields={'title': entry.fields['title'], 'year': entry.fields['year'],
-                                                      'booktitle': venues_full[venue_key] if short is None else venues_short[venue_key]}, persons=entry.persons)
+                                                      'booktitle': venues_list[venue_key][0] if short is None else venues_list[venue_key][1]}, persons=entry.persons)
                 new_key = entry.persons['author'][0].last_names[0].lower() + entry.fields['year'] + venue_key.lower()
                 bib_data_new.add_entry(new_key, new_entry)
             else:
