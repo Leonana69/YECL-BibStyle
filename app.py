@@ -13,9 +13,7 @@ def findVenues(booktitle):
         if booktitle == key:
             return key
         # compare the booktitle with full venue name
-        sim_long = 1 - Levenshtein.distance(booktitle, val[0]) / max(len(booktitle), len(val[0]))
-        sim_short = 1 - Levenshtein.distance(booktitle, val[1]) / max(len(booktitle), len(val[1]))
-        sim = max(sim_long, sim_short)
+        sim = 1 - Levenshtein.distance(booktitle, val) / max(len(booktitle), len(val))
         if sim > highest_sim:
             highest_sim = sim
             highest_sim_key = key
@@ -29,7 +27,6 @@ def findVenues(booktitle):
 def main():
     if request.method == 'POST':
         text = request.form['bibliography']
-        short = request.form.get('s_venue') # use short venue name or not
         bib_data = parse_string(text, 'bibtex')
 
         bib_data_new = BibliographyData(entries={}) # new bib data with updated venue names
@@ -52,7 +49,7 @@ def main():
             venue_key = findVenues(booktitle)
             if venue_key is not None:
                 new_entry = Entry(entry.type, fields={'title': entry.fields['title'], 'year': entry.fields['year'],
-                                                      'booktitle': venues_list[venue_key][0] if short is None else venues_list[venue_key][1]}, persons=entry.persons)
+                                                      'booktitle': venue_key}, persons=entry.persons)
                 new_key = entry.persons['author'][0].last_names[0].lower() + entry.fields['year'] + venue_key.lower()
                 bib_data_new.add_entry(new_key, new_entry)
             else:
@@ -64,6 +61,12 @@ def main():
             output = bib_data_new.to_string('bibtex')
         else:
             output = bib_data_new.to_string('bibtex') + '\n\n\n\n###### Can not find the venue for the following entries #####\n' + bib_data_bad.to_string('bibtex')
+
+        # remove quotation marks in booktitle line
+        for line in output.split('\n'):
+            if line.startswith('    booktitle'):
+                output = output.replace(line, line.replace('"', ''))
+
 
         return render_template('index.html', bibliography=output)
     else:
