@@ -13,7 +13,9 @@ def findVenues(booktitle):
         if booktitle == key:
             return key
         # compare the booktitle with full venue name
-        sim = 1 - Levenshtein.distance(booktitle, val[0]) / max(len(booktitle), len(val[0]))
+        sim_long = 1 - Levenshtein.distance(booktitle, val[0]) / max(len(booktitle), len(val[0]))
+        sim_short = 1 - Levenshtein.distance(booktitle, val[1]) / max(len(booktitle), len(val[1]))
+        sim = max(sim_long, sim_short)
         if sim > highest_sim:
             highest_sim = sim
             highest_sim_key = key
